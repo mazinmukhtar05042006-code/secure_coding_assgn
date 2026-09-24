@@ -1,0 +1,8 @@
+ORGANIZATION SECURITY POLICY
+----------------------------
+1. All user inputs must be validated on the server side using allowlists where feasible.
+2. Direct concatenation of user input into OS commands is strictly prohibited.
+3. Passwords must never be stored in plaintext or reversible encryption; salted PBKDF2/scrypt hashes must be used.
+4. Specific exceptions must be handled explicitly; generic bare 'except:' is prohibited.
+5. Temporary files must use cryptographically unpredictable filenames with restrictive permissions.
+6. Third-party packages must be reviewed and scanned periodically for known CVEs.
