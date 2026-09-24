@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Secure Coding Demo & Mitigation System{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <a href="{{ url_for('main.index') }}" class="nav-brand">
+                <span>🛡️ SECURE CODING LAB</span>
+                <span class="nav-badge">ACADEMIC ASSIGNMENT 1</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('main.index') }}">Dashboard</a></li>
+                <li><a href="{{ url_for('command.command_view') }}">1. Command Injection</a></li>
+                <li><a href="{{ url_for('file.file_view') }}">2. File Security</a></li>
+                <li><a href="{{ url_for('auth.auth_view') }}">3. Authentication</a></li>
+                <li><a href="{{ url_for('exception.exception_view') }}">4. Exceptions</a></li>
+                <li><a href="{{ url_for('temp.temp_view') }}">5. Temp Files</a></li>
+                <li><a href="{{ url_for('dependency.dependencies_view') }}">6. Dependencies</a></li>
+                <li><a href="{{ url_for('main.validation') }}">7. Input Validation</a></li>
+                <li><a href="{{ url_for('main.principles') }}">8. Principles</a></li>
+                <li><a href="{{ url_for('main.risk_assessment') }}">9. Risk & Priority</a></li>
+                <li><a href="{{ url_for('main.threat_model') }}">10. Threat Model</a></li>
+                <li><a href="{{ url_for('main.report') }}" class="nav-highlight">11. Final Report</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <p><strong>Secure Coding Vulnerability Demonstration and Mitigation System</strong> — Academic Assignment 1 Demonstration</p>
+        <p style="margin-top: 0.3rem;">Intentionally vulnerable code examples are strictly isolated and sandboxed for educational study.</p>
+    </footer>
+</body>
+</html>
