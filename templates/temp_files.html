@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}Lab 5: Temporary Files — SECURE CODING LAB{% endblock %}
+
+{% block content %}
+<div class="lab-header">
+    <div>
+        <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.25rem;">
+            <span class="badge badge-vuln">Vulnerability 5</span>
+            <span class="risk-pill risk-medium">MEDIUM RISK</span>
+        </div>
+        <h1 class="lab-title">Predictable Temporary Files</h1>
+        <p class="lab-desc">
+            Static or predictable temporary filenames allow symlink hijacking and race conditions; secure code uses <code>tempfile.NamedTemporaryFile</code>.
+        </p>
+    </div>
+    <div style="display: flex; gap: 0.4rem;">
+        <a href="{{ url_for('exception.exception_view') }}" class="btn btn-secondary">&larr; Prev Lab</a>
+        <a href="{{ url_for('dependency.dependencies_view') }}" class="btn btn-primary">Next Lab &rarr;</a>
+    </div>
+</div>
+
+<!-- Interactive Demonstration Grid (Try It First) -->
+<div class="lab-grid">
+    <!-- SECTION A: TRY VULNERABLE CODE -->
+    <div class="lab-panel vulnerable">
+        <div class="panel-header">
+            <span class="panel-title" style="color: #f43f5e;">📄 SECTION A: Try Predictable File</span>
+            <span class="badge badge-vuln">Static Filename</span>
+        </div>
+
+        <pre><code># INSECURE IMPLEMENTATION
+filename = "shared_temp_report.txt" # Guessable!
+with open(filename, "w") as f:
+    f.write(report_data) # Symlink / TOCTOU risk!</code></pre>
+
+        <form method="POST" action="{{ url_for('temp.temp_view') }}">
+            <input type="hidden" name="mode" value="vulnerable">
+            <div class="form-group">
+                <label class="form-label" for="vuln-content">Report Content:</label>
+                <textarea id="vuln-content" name="content" class="form-textarea" rows="2">Sample report data written to static temporary file.</textarea>
+            </div>
+            <button type="submit" class="btn btn-danger" style="width: 100%;">WRITE PREDICTABLE TEMP FILE</button>
+        </form>
+
+        {% if vuln_result %}
+        <div class="terminal-box vuln-out">
+<strong>[Generated Static File]:</strong> {{ vuln_result.file_name }}
+<strong>[Path on Disk]:</strong> {{ vuln_result.full_path }}
+<strong>[Vulnerability Flaw]:</strong> {{ vuln_result.flaw }}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- SECTION C: SECURE THE CODE -->
+    <div class="lab-panel secure">
+        <div class="panel-header">
+            <span class="panel-title" style="color: #10b981;">🛡️ SECTION C: Cryptographic Tempfile</span>
+            <span class="badge badge-sec">tempfile.NamedTemporaryFile</span>
+        </div>
+
+        <pre><code># SECURE IMPLEMENTATION
+import tempfile
+with tempfile.NamedTemporaryFile(
+    mode="w+", prefix="sec_report_", delete=True
+) as tmp:
+    tmp.write(report_data)
+    # Automatically deleted upon exit</code></pre>
+
+        <form method="POST" action="{{ url_for('temp.temp_view') }}">
+            <input type="hidden" name="mode" value="secure">
+            <div class="form-group">
+                <label class="form-label" for="sec-content">Report Content:</label>
+                <textarea id="sec-content" name="content" class="form-textarea" rows="2">Confidential session report data.</textarea>
+            </div>
+            <button type="submit" class="btn btn-success" style="width: 100%;">WRITE SECURE TEMP FILE</button>
+        </form>
+
+        {% if sec_result %}
+        <div class="terminal-box sec-out">
+<strong>[Random Generated Filename]:</strong> {{ sec_result.generated_filename }}
+<strong>[Entropy Unpredictability]:</strong> {{ sec_result.unpredictable_entropy }}
+<strong>[Auto Cleaned Up]:</strong> {{ sec_result.cleaned_up }}
+<strong>[Verified Content]:</strong> {{ sec_result.content_verified }}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- SECTION B: WHAT WENT WRONG? -->
+<div class="section-card">
+    <div class="section-title">⚠️ SECTION B: What Went Wrong?</div>
+    <ul class="bullet-list">
+        <li><strong>Predictable Path:</strong> A local attacker can predict <code>shared_temp_report.txt</code> and pre-create a malicious symlink.</li>
+        <li><strong>No Atomic Creation:</strong> The application overwrote existing files without exclusive file creation flags.</li>
+        <li><strong>Lingering Files:</strong> Temporary data was left on the disk indefinitely without guaranteed disposal.</li>
+    </ul>
+</div>
+
+<!-- SECTION D: BEFORE vs AFTER -->
+<div class="section-card">
+    <div class="section-title">⚖️ SECTION D: Before vs After Fix</div>
+    <div class="comparison-grid">
+        <div class="comp-box vuln">
+            <div class="comp-title">❌ Vulnerable Approach</div>
+            <div class="comp-item">❌ Static, hard-coded filenames</div>
+            <div class="comp-item">❌ Susceptible to symlink attacks</div>
+            <div class="comp-item">❌ TOCTOU race conditions</div>
+            <div class="comp-item">❌ Temporary data persists on disk</div>
+        </div>
+        <div class="comp-box sec">
+            <div class="comp-title">✓ Secure Implementation</div>
+            <div class="comp-item">✓ High-entropy random names (<code>tempfile</code>)</div>
+            <div class="comp-item">✓ Atomic creation with restrictive permissions</div>
+            <div class="comp-item">✓ Automatic deletion via context managers</div>
+            <div class="comp-item">✓ Zero persistent residue</div>
+        </div>
+    </div>
+</div>
+
+<!-- SECTION E: SECURE CODING PRINCIPLE -->
+<div class="section-card">
+    <div class="section-title">🎯 SECTION E: Secure Coding Principle</div>
+    <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+        <strong>Least Privilege & Minimize Attack Surface:</strong> Temporary files are created with restrictive permissions accessible solely to the executing process, and their attack surface is minimized by eliminating static filenames and enforcing immediate cleanup.
+    </p>
+    <details>
+        <summary>Why does this matter in real systems?</summary>
+        <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.4rem;">
+            In multi-user or containerized shared host environments, predictable temp files (CWE-377) allow local privilege escalation and arbitrary file overwriting by tricking privileged background daemons into writing through symlinks.
+        </p>
+    </details>
+</div>
+{% endblock %}
