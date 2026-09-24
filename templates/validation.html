@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Lab 7: Input Validation Playground — SECURE CODING LAB{% endblock %}
+
+{% block content %}
+<div class="lab-header">
+    <div>
+        <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.25rem;">
+            <span class="badge badge-sec">Interactive Playground</span>
+            <span class="badge badge-info">Module 2</span>
+        </div>
+        <h1 class="lab-title">Input Validation Playground</h1>
+        <p class="lab-desc">
+            Test and verify server-side validation rules (allowlists, type, length, and format restrictions) in real-time.
+        </p>
+    </div>
+    <div style="display: flex; gap: 0.4rem;">
+        <a href="{{ url_for('dependency.dependencies_view') }}" class="btn btn-secondary">&larr; Prev Lab</a>
+        <a href="{{ url_for('main.principles') }}" class="btn btn-primary">Principles &rarr;</a>
+    </div>
+</div>
+
+<div class="lab-grid">
+    <!-- Validation Interactive Test Panel -->
+    <div class="lab-panel secure">
+        <div class="panel-header">
+            <span class="panel-title" style="color: #38bdf8;">🧪 Live Server-Side Validator Test</span>
+            <span class="badge badge-info">Real-Time Evaluation</span>
+        </div>
+
+        <form method="POST" action="{{ url_for('main.validation') }}">
+            <div class="form-group">
+                <label class="form-label" for="val-type">Select Validation Category:</label>
+                <select id="val-type" name="val_type" class="form-select">
+                    <option value="host" {% if val_type == 'host' %}selected{% endif %}>Hostname / IP Address (Allowlist & Shell defense)</option>
+                    <option value="username" {% if val_type == 'username' %}selected{% endif %}>Username (3-30 Alphanumeric characters)</option>
+                    <option value="password" {% if val_type == 'password' %}selected{% endif %}>Password Complexity (8+ chars, upper, lower, digit)</option>
+                    <option value="filename" {% if val_type == 'filename' %}selected{% endif %}>Safe Filename (No path traversal tokens)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="val-input">Test Input String:</label>
+                <input type="text" id="val-input" name="input_value" class="form-input" 
+                       placeholder="Enter test value..." value="{{ input_value if input_value else '127.0.0.1; whoami' }}">
+                <div class="form-hint">Try valid inputs or test malicious tokens (<code>; & | ../ \0</code>)</div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%;">VALIDATE INPUT (SERVER-SIDE)</button>
+        </form>
+
+        {% if result %}
+        <div class="terminal-box {% if result.is_valid %}sec-out{% else %}vuln-out{% endif %}">
+<strong>[Input Tested]:</strong> "{{ result.input }}"
+<strong>[Validator Type]:</strong> {{ result.type }}
+<strong>[Outcome]:</strong> {{ result.status }}
+<strong>[Validation Detail]:</strong>
+{{ result.reason }}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Validation Principles Breakdown -->
+    <div class="lab-panel vulnerable" style="border-top: 3px solid var(--accent-blue);">
+        <div class="panel-header">
+            <span class="panel-title" style="color: #ffffff;">📋 Active Validation Rules</span>
+            <span class="badge badge-sec">Allowlists</span>
+        </div>
+
+        <div style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">
+            <div style="margin-bottom: 0.6rem;">
+                <strong style="color: #38bdf8;">1. Hostname / IP:</strong> Validates strictly against IPv4/IPv6 address grammar or RFC domain regex. Blocks all command chaining tokens.
+            </div>
+            <div style="margin-bottom: 0.6rem;">
+                <strong style="color: #38bdf8;">2. Username:</strong> Length: 3–30 characters. Allowlist pattern: <code>^[a-zA-Z0-9_-]+$</code>.
+            </div>
+            <div style="margin-bottom: 0.6rem;">
+                <strong style="color: #38bdf8;">3. Password:</strong> Length: 8–128 characters. Requires at least 1 uppercase letter, 1 lowercase letter, and 1 numeric digit.
+            </div>
+            <div>
+                <strong style="color: #38bdf8;">4. Filename:</strong> Max 100 chars. Regex: <code>^[a-zA-Z0-9_.-]+$</code>. Completely forbids <code>/</code>, <code>\</code>, <code>..</code>, and null bytes.
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="section-card">
+    <div class="section-title">⚖️ Server-Side vs Client-Side Validation</div>
+    <div class="comparison-grid">
+        <div class="comp-box vuln">
+            <div class="comp-title">❌ Client-Side Only (Insecure)</div>
+            <div class="comp-item">❌ Trivially bypassed via curl / Burp Suite</div>
+            <div class="comp-item">❌ Browser controls do not provide security</div>
+            <div class="comp-item">❌ Never trust client assumptions</div>
+        </div>
+        <div class="comp-box sec">
+            <div class="comp-title">✓ Server-Side Enforcement (Secure)</div>
+            <div class="comp-item">✓ Mandatory inspection on every request</div>
+            <div class="comp-item">✓ Strict allowlists over fragile blocklists</div>
+            <div class="comp-item">✓ Multi-layered (Type, Length, Format, Range)</div>
+        </div>
+    </div>
+</div>
+{% endblock %}
