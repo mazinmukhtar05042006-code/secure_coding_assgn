@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block title %}Threat Model — SECURE CODING LAB{% endblock %}
+
+{% block content %}
+<div class="lab-header">
+    <div>
+        <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.25rem;">
+            <span class="badge badge-sec">STRIDE Framework</span>
+            <span class="badge badge-info">Security Architecture</span>
+        </div>
+        <h1 class="lab-title">Threat Model & Attack Surface</h1>
+        <p class="lab-desc">
+            Structured analysis of application assets, trust boundaries, threat actors, and control mappings.
+        </p>
+    </div>
+    <div style="display: flex; gap: 0.4rem;">
+        <a href="{{ url_for('main.risk_assessment') }}" class="btn btn-secondary">&larr; Risk & Priority</a>
+        <a href="{{ url_for('main.report') }}" class="btn btn-primary">Final Report &rarr;</a>
+    </div>
+</div>
+
+<div class="comparison-grid" style="margin-bottom: 1.5rem;">
+    <div class="section-card" style="margin-bottom: 0;">
+        <div class="section-title">💎 Protected Assets</div>
+        <ul class="bullet-list">
+            <li><strong>Host Shell & Processes:</strong> Server OS execution integrity and CPU control.</li>
+            <li><strong>Application Source & Config:</strong> Backend python scripts and <code>.env</code> tokens.</li>
+            <li><strong>User Credentials:</strong> Authentication hashes and session identity.</li>
+            <li><strong>Server Diagnostics:</strong> Internal stack traces, directory layouts, and logs.</li>
+        </ul>
+    </div>
+
+    <div class="section-card" style="margin-bottom: 0;">
+        <div class="section-title">🌐 Trust Boundaries & Threat Actor</div>
+        <ul class="bullet-list">
+            <li><strong>Threat Actor:</strong> Generic remote unauthenticated / malicious web user.</li>
+            <li><strong>External Web Boundary:</strong> HTTP GET/POST form parameters and headers.</li>
+            <li><strong>Filesystem Boundary:</strong> File reading sandbox and temporary directories.</li>
+            <li><strong>OS Execution Boundary:</strong> Process invocation API (<code>subprocess</code>).</li>
+        </ul>
+    </div>
+</div>
+
+<!-- STRIDE Threat Cards -->
+<h2 style="font-size: 1.15rem; color: #ffffff; margin-bottom: 0.75rem;">🎯 STRIDE Threat Identification Cards</h2>
+<div class="card-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.15rem; margin-bottom: 1.5rem;">
+    <!-- Threat 1 -->
+    <div class="lab-panel vulnerable" style="border-radius: 8px;">
+        <div class="panel-header">
+            <span class="p-name">Tampering / Elevation of Privilege</span>
+            <span class="risk-pill risk-critical">CRITICAL</span>
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.35rem;">
+            <strong>Affected Weakness:</strong> Vulnerability 1 (OS Command Injection)
+        </div>
+        <div style="font-size: 0.8rem; color: #fda4af; margin-bottom: 0.35rem;">
+            <strong>Attack Vector:</strong> Submitting command chaining tokens (<code>; && |</code>) in input.
+        </div>
+        <div style="font-size: 0.8rem; color: #6ee7b7;">
+            <strong>Mitigation:</strong> Strict allowlist validation + <code>subprocess.run(shell=False)</code>.
+        </div>
+    </div>
+
+    <!-- Threat 2 -->
+    <div class="lab-panel vulnerable" style="border-radius: 8px;">
+        <div class="panel-header">
+            <span class="p-name">Information Disclosure</span>
+            <span class="risk-pill risk-high">HIGH</span>
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.35rem;">
+            <strong>Affected Weakness:</strong> Vulnerability 2 (File Path Traversal)
+        </div>
+        <div style="font-size: 0.8rem; color: #fda4af; margin-bottom: 0.35rem;">
+            <strong>Attack Vector:</strong> Supplying dot-dot-slash sequences (<code>../</code>) to escape web root.
+        </div>
+        <div style="font-size: 0.8rem; color: #6ee7b7;">
+            <strong>Mitigation:</strong> Canonical path resolution + <code>Path.is_relative_to(base)</code>.
+        </div>
+    </div>
+
+    <!-- Threat 3 -->
+    <div class="lab-panel vulnerable" style="border-radius: 8px;">
+        <div class="panel-header">
+            <span class="p-name">Spoofing / Credential Theft</span>
+            <span class="risk-pill risk-critical">CRITICAL</span>
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.35rem;">
+            <strong>Affected Weakness:</strong> Vulnerability 3 (Plaintext Passwords)
+        </div>
+        <div style="font-size: 0.8rem; color: #fda4af; margin-bottom: 0.35rem;">
+            <strong>Attack Vector:</strong> Extracting stored cleartext credentials during database breach.
+        </div>
+        <div style="font-size: 0.8rem; color: #6ee7b7;">
+            <strong>Mitigation:</strong> Salted PBKDF2/scrypt hashing + constant-time verification.
+        </div>
+    </div>
+
+    <!-- Threat 4 -->
+    <div class="lab-panel vulnerable" style="border-radius: 8px;">
+        <div class="panel-header">
+            <span class="p-name">Information Disclosure</span>
+            <span class="risk-pill risk-medium">MEDIUM</span>
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.35rem;">
+            <strong>Affected Weakness:</strong> Vulnerability 4 (Improper Exceptions)
+        </div>
+        <div style="font-size: 0.8rem; color: #fda4af; margin-bottom: 0.35rem;">
+            <strong>Attack Vector:</strong> Inducing runtime errors to view leaked filesystem stack traces.
+        </div>
+        <div style="font-size: 0.8rem; color: #6ee7b7;">
+            <strong>Mitigation:</strong> Specific exception handlers + sanitized user-facing messages.
+        </div>
+    </div>
+
+    <!-- Threat 5 -->
+    <div class="lab-panel vulnerable" style="border-radius: 8px;">
+        <div class="panel-header">
+            <span class="p-name">Tampering / Race Condition</span>
+            <span class="risk-pill risk-medium">MEDIUM</span>
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.35rem;">
+            <strong>Affected Weakness:</strong> Vulnerability 5 (Predictable Temp Files)
+        </div>
+        <div style="font-size: 0.8rem; color: #fda4af; margin-bottom: 0.35rem;">
+            <strong>Attack Vector:</strong> Symlink pre-creation and TOCTOU collision in shared temp space.
+        </div>
+        <div style="font-size: 0.8rem; color: #6ee7b7;">
+            <strong>Mitigation:</strong> High-entropy <code>NamedTemporaryFile</code> with automatic disposal.
+        </div>
+    </div>
+
+    <!-- Threat 6 -->
+    <div class="lab-panel vulnerable" style="border-radius: 8px;">
+        <div class="panel-header">
+            <span class="p-name">Elevation of Privilege</span>
+            <span class="risk-pill risk-high">HIGH</span>
+        </div>
+        <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.35rem;">
+            <strong>Affected Weakness:</strong> Vulnerability 6 (Unmanaged Dependencies)
+        </div>
+        <div style="font-size: 0.8rem; color: #fda4af; margin-bottom: 0.35rem;">
+            <strong>Attack Vector:</strong> Exploiting known public CVEs in outdated third-party packages.
+        </div>
+        <div style="font-size: 0.8rem; color: #6ee7b7;">
+            <strong>Mitigation:</strong> Minimal package manifest + continuous SCA auditing.
+        </div>
+    </div>
+</div>
+
+<details>
+    <summary>View full tabular STRIDE matrix</summary>
+    <div class="table-responsive" style="margin-top: 0.75rem;">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>STRIDE Category</th>
+                    <th>Vulnerability</th>
+                    <th>Attack Vector</th>
+                    <th>Applied Security Control</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Tampering / Elevation</td>
+                    <td>1. Command Injection</td>
+                    <td>Appending <code>; rm -rf</code> or <code>&& whoami</code></td>
+                    <td>Subprocess argument lists (<code>shell=False</code>) + IP allowlist</td>
+                </tr>
+                <tr>
+                    <td>Information Disclosure</td>
+                    <td>2. Path Traversal</td>
+                    <td>Injecting <code>../../../../etc/passwd</code></td>
+                    <td>Canonical path resolution + <code>is_relative_to(base)</code></td>
+                </tr>
+                <tr>
+                    <td>Spoofing / Theft</td>
+                    <td>3. Plaintext Passwords</td>
+                    <td>Dumping database to read credentials</td>
+                    <td>Salted PBKDF2/scrypt hashing + constant-time comparison</td>
+                </tr>
+                <tr>
+                    <td>Information Disclosure</td>
+                    <td>4. Bare Except</td>
+                    <td>Inducing errors to inspect stack traces</td>
+                    <td>Typed exception handling + sanitized client messages</td>
+                </tr>
+                <tr>
+                    <td>Tampering / Race</td>
+                    <td>5. Predictable Temp Files</td>
+                    <td>Pre-creating symlinks to overwrite files</td>
+                    <td>Cryptographic high-entropy filenames + auto-deletion</td>
+                </tr>
+                <tr>
+                    <td>Elevation of Privilege</td>
+                    <td>6. Unchecked Dependencies</td>
+                    <td>Exploiting unpatched third-party CVEs</td>
+                    <td>Minimal dependency manifest + SCA scanning (<code>pip-audit</code>)</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</details>
+{% endblock %}
