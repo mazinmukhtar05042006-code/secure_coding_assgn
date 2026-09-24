@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Principles — SECURE CODING LAB{% endblock %}
+
+{% block content %}
+<div class="lab-header">
+    <div>
+        <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.25rem;">
+            <span class="badge badge-info">Security Architecture</span>
+            <span class="badge badge-sec">Module 1 Reference</span>
+        </div>
+        <h1 class="lab-title">Secure Coding Principles</h1>
+        <p class="lab-desc">
+            Compact reference cards connecting theoretical secure coding principles to concrete implementations across this lab.
+        </p>
+    </div>
+    <div style="display: flex; gap: 0.4rem;">
+        <a href="{{ url_for('main.validation') }}" class="btn btn-secondary">&larr; Validation</a>
+        <a href="{{ url_for('main.risk_assessment') }}" class="btn btn-primary">Risk & Priority &rarr;</a>
+    </div>
+</div>
+
+<div class="card-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.15rem; margin-bottom: 2rem;">
+    <!-- Card 1 -->
+    <div class="section-card" style="margin-bottom: 0;">
+        <div class="section-title">🛡️ Least Privilege</div>
+        <div style="font-size: 0.83rem; color: #38bdf8; margin-bottom: 0.4rem;"><strong>Meaning:</strong> Grant only the minimum necessary permissions required to complete a task.</div>
+        <div style="font-size: 0.8rem; color: var(--text-secondary);"><strong>In This Lab:</strong> Temporary files use 0600 restrictive permissions; Subprocesses run without root/admin shells.</div>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="section-card" style="margin-bottom: 0;">
+        <div class="section-title">🧱 Defense in Depth</div>
+        <div style="font-size: 0.83rem; color: #38bdf8; margin-bottom: 0.4rem;"><strong>Meaning:</strong> Layer multiple independent security controls to prevent single-point failures.</div>
+        <div style="font-size: 0.8rem; color: var(--text-secondary);"><strong>In This Lab:</strong> Input allowlists + structured subprocess APIs + HTTP security headers (CSP, X-Frame).</div>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="section-card" style="margin-bottom: 0;">
+        <div class="section-title">⚙️ Secure by Default</div>
+        <div style="font-size: 0.83rem; color: #38bdf8; margin-bottom: 0.4rem;"><strong>Meaning:</strong> The default system configuration must be the safest operational state.</div>
+        <div style="font-size: 0.8rem; color: var(--text-secondary);"><strong>In This Lab:</strong> Subprocess defaults to <code>shell=False</code>; File reading is sandboxed by default.</div>
+    </div>
+
+    <!-- Card 4 -->
+    <div class="section-card" style="margin-bottom: 0;">
+        <div class="section-title">🛑 Fail Securely</div>
+        <div style="font-size: 0.83rem; color: #38bdf8; margin-bottom: 0.4rem;"><strong>Meaning:</strong> When errors occur, the system transitions to a secure state that denies unauthorized access.</div>
+        <div style="font-size: 0.8rem; color: var(--text-secondary);"><strong>In This Lab:</strong> Exceptions return generic user error messages while keeping stack traces internal.</div>
+    </div>
+
+    <!-- Card 5 -->
+    <div class="section-card" style="margin-bottom: 0;">
+        <div class="section-title">🔍 Complete Mediation</div>
+        <div style="font-size: 0.83rem; color: #38bdf8; margin-bottom: 0.4rem;"><strong>Meaning:</strong> Every single access to protected resources must be checked on every invocation.</div>
+        <div style="font-size: 0.8rem; color: var(--text-secondary);"><strong>In This Lab:</strong> Canonical path resolution (<code>Path.resolve()</code>) is verified on every file read.</div>
+    </div>
+
+    <!-- Card 6 -->
+    <div class="section-card" style="margin-bottom: 0;">
+        <div class="section-title">🎯 Minimize Attack Surface</div>
+        <div style="font-size: 0.83rem; color: #38bdf8; margin-bottom: 0.4rem;"><strong>Meaning:</strong> Eliminate unnecessary code paths, dependencies, open ports, and privileges.</div>
+        <div style="font-size: 0.8rem; color: var(--text-secondary);"><strong>In This Lab:</strong> Unnecessary external packages removed; commands run without spawning interactive shells.</div>
+    </div>
+
+    <!-- Card 7 -->
+    <div class="section-card" style="margin-bottom: 0;">
+        <div class="section-title">🔐 Secure Data Handling</div>
+        <div style="font-size: 0.83rem; color: #38bdf8; margin-bottom: 0.4rem;"><strong>Meaning:</strong> Protect sensitive information at rest, in transit, and during processing.</div>
+        <div style="font-size: 0.8rem; color: var(--text-secondary);"><strong>In This Lab:</strong> Passwords hashed with salted PBKDF2; plaintext passwords never printed in logs or UI.</div>
+    </div>
+
+    <!-- Card 8 -->
+    <div class="section-card" style="margin-bottom: 0;">
+        <div class="section-title">♻️ Secure Recovery</div>
+        <div style="font-size: 0.83rem; color: #38bdf8; margin-bottom: 0.4rem;"><strong>Meaning:</strong> Ensure failures and aborts restore safe invariants and clean up sensitive resources.</div>
+        <div style="font-size: 0.8rem; color: var(--text-secondary);"><strong>In This Lab:</strong> Python context managers (<code>with</code> blocks) ensure temp files are unlinked and destroyed on error.</div>
+    </div>
+
+    <!-- Card 9 -->
+    <div class="section-card" style="margin-bottom: 0;">
+        <div class="section-title">👥 Separation of Duties</div>
+        <div style="font-size: 0.83rem; color: #38bdf8; margin-bottom: 0.4rem;"><strong>Meaning:</strong> Divide critical tasks across distinct mechanisms so no single component possesses unchecked authority.</div>
+        <div style="font-size: 0.8rem; color: var(--text-secondary);"><strong>In This Lab:</strong> Modular separation between routing, input validation, and security execution logic.</div>
+    </div>
+
+    <!-- Card 10 -->
+    <div class="section-card" style="margin-bottom: 0;">
+        <div class="section-title">📖 Open Design</div>
+        <div style="font-size: 0.83rem; color: #38bdf8; margin-bottom: 0.4rem;"><strong>Meaning:</strong> Security must not depend on obscurity; cryptographic mechanisms must remain secure even if source is public.</div>
+        <div style="font-size: 0.8rem; color: var(--text-secondary);"><strong>In This Lab:</strong> Use of public, standardized algorithms (PBKDF2/scrypt) rather than custom obfuscation.</div>
+    </div>
+
+    <!-- Card 11 -->
+    <div class="section-card" style="margin-bottom: 0;">
+        <div class="section-title">🧩 Economy of Mechanism</div>
+        <div style="font-size: 0.83rem; color: #38bdf8; margin-bottom: 0.4rem;"><strong>Meaning:</strong> Keep security designs as simple and small as possible to minimize flaws and ease verification.</div>
+        <div style="font-size: 0.8rem; color: var(--text-secondary);"><strong>In This Lab:</strong> Simple, focused validation helper functions without convoluted logic or bloated dependencies.</div>
+    </div>
+</div>
+{% endblock %}
