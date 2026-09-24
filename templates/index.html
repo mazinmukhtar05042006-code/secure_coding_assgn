@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard — SECURE CODING LAB{% endblock %}
+
+{% block content %}
+<div class="lab-header">
+    <div>
+        <h1 class="lab-title">SECURE CODING LAB</h1>
+        <p class="lab-desc">
+            Academic Assignment 1 &bull; Interactive demonstration of common insecure coding practices and their secure alternatives.
+        </p>
+    </div>
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
+        <span class="badge badge-sec">6 Active Labs</span>
+        <a href="{{ url_for('main.risk_assessment') }}" class="btn btn-secondary">Priority Roadmap &rarr;</a>
+    </div>
+</div>
+
+<div class="card-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
+    <!-- Card 1 -->
+    <div class="lab-panel vulnerable" style="border-radius: 8px;">
+        <div class="panel-header">
+            <span class="p-name">1. Command Injection</span>
+            <span class="risk-pill risk-critical">CRITICAL</span>
+        </div>
+        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1rem; flex: 1;">
+            Direct concatenation of raw user input into shell execution commands vs structured argument lists.
+        </p>
+        <a href="{{ url_for('command.command_view') }}" class="btn btn-primary" style="width: 100%;">Open Lab &rarr;</a>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="lab-panel vulnerable" style="border-radius: 8px;">
+        <div class="panel-header">
+            <span class="p-name">2. File Path Traversal</span>
+            <span class="risk-pill risk-high">HIGH</span>
+        </div>
+        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1rem; flex: 1;">
+            Arbitrary filesystem breakout through unchecked relative paths vs path canonicalization and containment.
+        </p>
+        <a href="{{ url_for('file.file_view') }}" class="btn btn-primary" style="width: 100%;">Open Lab &rarr;</a>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="lab-panel vulnerable" style="border-radius: 8px;">
+        <div class="panel-header">
+            <span class="p-name">3. Plaintext Password Storage</span>
+            <span class="risk-pill risk-critical">CRITICAL</span>
+        </div>
+        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1rem; flex: 1;">
+            Exposing credentials at rest in cleartext vs salted cryptographic key-derivation functions (PBKDF2/scrypt).
+        </p>
+        <a href="{{ url_for('auth.auth_view') }}" class="btn btn-primary" style="width: 100%;">Open Lab &rarr;</a>
+    </div>
+
+    <!-- Card 4 -->
+    <div class="lab-panel vulnerable" style="border-radius: 8px;">
+        <div class="panel-header">
+            <span class="p-name">4. Improper Exception Handling</span>
+            <span class="risk-pill risk-medium">MEDIUM</span>
+        </div>
+        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1rem; flex: 1;">
+            Generic bare <code>except:</code> leaking internal system tracebacks vs typed handlers and sanitized responses.
+        </p>
+        <a href="{{ url_for('exception.exception_view') }}" class="btn btn-primary" style="width: 100%;">Open Lab &rarr;</a>
+    </div>
+
+    <!-- Card 5 -->
+    <div class="lab-panel vulnerable" style="border-radius: 8px;">
+        <div class="panel-header">
+            <span class="p-name">5. Predictable Temporary Files</span>
+            <span class="risk-pill risk-medium">MEDIUM</span>
+        </div>
+        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1rem; flex: 1;">
+            Hardcoded temp filenames prone to race conditions and symlinks vs cryptographic <code>tempfile</code> with cleanup.
+        </p>
+        <a href="{{ url_for('temp.temp_view') }}" class="btn btn-primary" style="width: 100%;">Open Lab &rarr;</a>
+    </div>
+
+    <!-- Card 6 -->
+    <div class="lab-panel vulnerable" style="border-radius: 8px;">
+        <div class="panel-header">
+            <span class="p-name">6. Unmanaged Dependencies</span>
+            <span class="risk-pill risk-high">HIGH</span>
+        </div>
+        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1rem; flex: 1;">
+            Supply chain vulnerability exposure vs minimal dependencies, version locking, and SCA auditing tools.
+        </p>
+        <a href="{{ url_for('dependency.dependencies_view') }}" class="btn btn-primary" style="width: 100%;">Open Lab &rarr;</a>
+    </div>
+</div>
+
+<div class="timeline-track">
+    <div class="timeline-phase">
+        <div class="timeline-phase-title phase-crit">🚨 Immediate Priority</div>
+        <div style="font-size: 0.82rem; color: var(--text-secondary);">
+            &bull; Command Injection<br>
+            &bull; Plaintext Password Storage
+        </div>
+    </div>
+    <div class="timeline-phase">
+        <div class="timeline-phase-title phase-high">⚠️ High Priority</div>
+        <div style="font-size: 0.82rem; color: var(--text-secondary);">
+            &bull; File Path Traversal<br>
+            &bull; Unmanaged Dependencies
+        </div>
+    </div>
+    <div class="timeline-phase">
+        <div class="timeline-phase-title phase-med">🔍 Follow-up Priority</div>
+        <div style="font-size: 0.82rem; color: var(--text-secondary);">
+            &bull; Predictable Temporary Files<br>
+            &bull; Improper Exception Handling
+        </div>
+    </div>
+</div>
+{% endblock %}
