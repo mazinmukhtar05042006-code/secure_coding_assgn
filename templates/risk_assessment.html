@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block title %}Risk Assessment & Priority Roadmap — SECURE CODING LAB{% endblock %}
+
+{% block content %}
+<div class="lab-header">
+    <div>
+        <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.25rem;">
+            <span class="badge badge-sec">Risk Matrix</span>
+            <span class="badge badge-info">Implementation Roadmap</span>
+        </div>
+        <h1 class="lab-title">Risk Assessment & Prioritization</h1>
+        <p class="lab-desc">
+            Vulnerability risk calculations (<code>Risk = Likelihood × Impact</code>) and visual implementation priority roadmap.
+        </p>
+    </div>
+    <div style="display: flex; gap: 0.4rem;">
+        <a href="{{ url_for('main.principles') }}" class="btn btn-secondary">&larr; Principles</a>
+        <a href="{{ url_for('main.threat_model') }}" class="btn btn-primary">Threat Model &rarr;</a>
+    </div>
+</div>
+
+<!-- Visual Priority Roadmap Timeline -->
+<h2 style="font-size: 1.15rem; color: #ffffff; margin-bottom: 0.75rem;">🗺️ Implementation Priority Roadmap</h2>
+<div class="timeline-track">
+    <div class="timeline-phase">
+        <div class="timeline-phase-title phase-crit">🚨 IMMEDIATE (PHASE 1)</div>
+        <div style="font-weight: 700; color: #ffffff; font-size: 0.85rem;">01. OS Command Injection</div>
+        <div style="font-size: 0.75rem; color: #fda4af; margin-bottom: 0.5rem;">Critical Risk &bull; Remote Code Execution</div>
+        <div style="font-weight: 700; color: #ffffff; font-size: 0.85rem;">02. Plaintext Password Storage</div>
+        <div style="font-size: 0.75rem; color: #fda4af;">Critical Risk &bull; Mass Credential Exposure</div>
+    </div>
+    <div class="timeline-phase">
+        <div class="timeline-phase-title phase-high">⚠️ HIGH PRIORITY (PHASE 2)</div>
+        <div style="font-weight: 700; color: #ffffff; font-size: 0.85rem;">03. File Path Traversal</div>
+        <div style="font-size: 0.75rem; color: #fed7aa; margin-bottom: 0.5rem;">High Risk &bull; Arbitrary File Disclosure</div>
+        <div style="font-weight: 700; color: #ffffff; font-size: 0.85rem;">04. Unmanaged Dependencies</div>
+        <div style="font-size: 0.75rem; color: #fed7aa;">High Risk &bull; Supply Chain Exploitation</div>
+    </div>
+    <div class="timeline-phase">
+        <div class="timeline-phase-title phase-med">🔍 FOLLOW-UP (PHASE 3)</div>
+        <div style="font-weight: 700; color: #ffffff; font-size: 0.85rem;">05. Predictable Temporary Files</div>
+        <div style="font-size: 0.75rem; color: #bae6fd; margin-bottom: 0.5rem;">Medium Risk &bull; Symlink & TOCTOU Race</div>
+        <div style="font-weight: 700; color: #ffffff; font-size: 0.85rem;">06. Improper Exception Handling</div>
+        <div style="font-size: 0.75rem; color: #bae6fd;">Medium Risk &bull; Stack Trace Reconnaissance</div>
+    </div>
+</div>
+
+<!-- Implementation Priority Order Cards (6 Cards) -->
+<h2 style="font-size: 1.15rem; color: #ffffff; margin-bottom: 0.75rem;">📋 Recommended Security Fix Order (Required Priority Breakdown)</h2>
+<div class="priority-roadmap">
+    <!-- Card 1 -->
+    <div class="priority-card p-critical">
+        <div class="p-header">
+            <span class="p-number">01</span>
+            <span class="risk-pill risk-critical">CRITICAL RISK &bull; FIX IMMEDIATELY</span>
+        </div>
+        <div class="p-name">OS Command Injection</div>
+        <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0.35rem 0;">
+            <strong>Why First:</strong> Direct arbitrary OS command execution leads to total host takeover, ransomware, and server control.
+        </p>
+        <div style="font-size: 0.78rem; color: #6ee7b7; margin-bottom: 0.35rem;">
+            <strong>Secure Fix:</strong> Strict allowlist validation + <code>subprocess.run(["cmd", arg], shell=False)</code>.
+        </div>
+        <div style="font-size: 0.78rem; color: #38bdf8;">
+            <strong>Principles:</strong> Minimize Attack Surface, Input Validation, Defense in Depth, Least Privilege.
+        </div>
+        <details>
+            <summary>View detailed justification</summary>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.3rem;">
+                Raw input directly reached the shell interpreter. Because an attacker can run commands with the application's privileges, this poses the single highest threat to system integrity and confidentiality.
+            </p>
+        </details>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="priority-card p-critical">
+        <div class="p-header">
+            <span class="p-number">02</span>
+            <span class="risk-pill risk-critical">CRITICAL RISK &bull; FIX IMMEDIATELY</span>
+        </div>
+        <div class="p-name">Plaintext Password Storage</div>
+        <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0.35rem 0;">
+            <strong>Why Second:</strong> Database or backup leaks instantly compromise all accounts; credential stuffing impacts external services.
+        </p>
+        <div style="font-size: 0.78rem; color: #6ee7b7; margin-bottom: 0.35rem;">
+            <strong>Secure Fix:</strong> Salted password hashing (PBKDF2/scrypt) + constant-time verification.
+        </div>
+        <div style="font-size: 0.78rem; color: #38bdf8;">
+            <strong>Principles:</strong> Secure Data Handling, Defense in Depth, Least Privilege.
+        </div>
+        <details>
+            <summary>View detailed justification</summary>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.3rem;">
+                Storing passwords in cleartext guarantees total identity loss upon any storage exposure. Applying cryptographic salted key derivation protects credentials at rest even if the database is stolen.
+            </p>
+        </details>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="priority-card p-high">
+        <div class="p-header">
+            <span class="p-number">03</span>
+            <span class="risk-pill risk-high">HIGH RISK &bull; FIX NEXT</span>
+        </div>
+        <div class="p-name">File Path Traversal</div>
+        <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0.35rem 0;">
+            <strong>Why Third:</strong> Allows reading unauthorized files outside web root, leaking application source, keys, and OS configurations.
+        </p>
+        <div style="font-size: 0.78rem; color: #6ee7b7; margin-bottom: 0.35rem;">
+            <strong>Secure Fix:</strong> Path canonicalization via <code>Path.resolve()</code> + base directory containment check.
+        </div>
+        <div style="font-size: 0.78rem; color: #38bdf8;">
+            <strong>Principles:</strong> Complete Mediation, Minimize Attack Surface, Secure by Default.
+        </div>
+        <details>
+            <summary>View detailed justification</summary>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.3rem;">
+                Relative traversal tokens (<code>../</code>) bypass naive string concatenation. Resolving the canonical absolute path ensures complete mediation before any file descriptor is opened.
+            </p>
+        </details>
+    </div>
+
+    <!-- Card 4 -->
+    <div class="priority-card p-high">
+        <div class="p-header">
+            <span class="p-number">04</span>
+            <span class="risk-pill risk-high">HIGH RISK &bull; FIX NEXT</span>
+        </div>
+        <div class="p-name">Unmanaged External Dependencies</div>
+        <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0.35rem 0;">
+            <strong>Why Fourth:</strong> Third-party libraries introduce inherited supply-chain CVEs easily weaponized by automated botnets.
+        </p>
+        <div style="font-size: 0.78rem; color: #6ee7b7; margin-bottom: 0.35rem;">
+            <strong>Secure Fix:</strong> Minimal <code>requirements.txt</code>, version pinning, and automated SCA (<code>pip-audit</code>).
+        </div>
+        <div style="font-size: 0.78rem; color: #38bdf8;">
+            <strong>Principles:</strong> Minimize Attack Surface, Defense in Depth, Secure Recovery.
+        </div>
+        <details>
+            <summary>View detailed justification</summary>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.3rem;">
+                Applications inherit vulnerabilities from deep transitive dependency trees. Establishing a minimal package manifest and automated vulnerability scans eliminates known public exploits.
+            </p>
+        </details>
+    </div>
+
+    <!-- Card 5 -->
+    <div class="priority-card p-med">
+        <div class="p-header">
+            <span class="p-number">05</span>
+            <span class="risk-pill risk-medium">MEDIUM RISK &bull; FOLLOW-UP</span>
+        </div>
+        <div class="p-name">Predictable Temporary Files</div>
+        <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0.35rem 0;">
+            <strong>Why Fifth:</strong> Static names cause symlink hijacking and race conditions in shared/multi-user environments.
+        </p>
+        <div style="font-size: 0.78rem; color: #6ee7b7; margin-bottom: 0.35rem;">
+            <strong>Secure Fix:</strong> Use <code>tempfile.NamedTemporaryFile</code> with cryptographically random names & auto-cleanup.
+        </div>
+        <div style="font-size: 0.78rem; color: #38bdf8;">
+            <strong>Principles:</strong> Secure by Default, Minimize Attack Surface, Secure Data Handling.
+        </div>
+        <details>
+            <summary>View detailed justification</summary>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.3rem;">
+                Exploitation requires local presence or shared execution space. While serious, it ranks below direct remote RCE and credential exposure.
+            </p>
+        </details>
+    </div>
+
+    <!-- Card 6 -->
+    <div class="priority-card p-med">
+        <div class="p-header">
+            <span class="p-number">06</span>
+            <span class="risk-pill risk-medium">MEDIUM RISK &bull; FOLLOW-UP</span>
+        </div>
+        <div class="p-name">Improper Exception Handling</div>
+        <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0.35rem 0;">
+            <strong>Why Sixth:</strong> Stack traces disclose internal paths and software versions, aiding attacker reconnaissance.
+        </p>
+        <div style="font-size: 0.78rem; color: #6ee7b7; margin-bottom: 0.35rem;">
+            <strong>Secure Fix:</strong> Catch specific exceptions, return sanitized user errors, and log diagnostics server-side.
+        </div>
+        <div style="font-size: 0.78rem; color: #38bdf8;">
+            <strong>Principles:</strong> Fail Securely, Secure Data Handling, Defense in Depth.
+        </div>
+        <details>
+            <summary>View detailed justification</summary>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.3rem;">
+                Information disclosure assists attacker reconnaissance rather than granting immediate remote execution, making it a follow-up remediation.
+            </p>
+        </details>
+    </div>
+</div>
+
+<!-- Compact Assessment Justification Note -->
+<div class="section-card">
+    <div class="section-title">⚖️ Prioritization Methodology & Risk Formula</div>
+    <div style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">
+        <div style="background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); padding: 0.4rem 0.75rem; border-radius: 5px; font-family: var(--font-mono); color: #7dd3fc; display: inline-block; margin-bottom: 0.5rem;">
+            Risk = Likelihood × Impact
+        </div>
+        <p>
+            Implementation priority is based on the combination of likelihood and potential impact. Vulnerabilities with the greatest potential to compromise confidentiality, integrity, or availability and/or enable direct remote compromise are addressed earlier. Medium-risk weaknesses are still required to be fixed, but are addressed after higher-risk issues.
+        </p>
+    </div>
+</div>
+{% endblock %}
