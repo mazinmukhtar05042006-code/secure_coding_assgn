@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block title %}Final Security Report — Academic Assignment 1{% endblock %}
+
+{% block content %}
+<div class="lab-header">
+    <div>
+        <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.25rem;">
+            <span class="badge badge-sec">Formal Academic Report</span>
+            <span class="badge badge-info">Evaluation Summary</span>
+        </div>
+        <h1 class="lab-title">Final Security & Risk Assessment Report</h1>
+        <p class="lab-desc">
+            Complete formal documentation of the six case study vulnerabilities, risk evaluation, implementation priority order, and applied engineering mitigations.
+        </p>
+    </div>
+    <div style="display: flex; gap: 0.4rem;">
+        <a href="{{ url_for('main.threat_model') }}" class="btn btn-secondary">&larr; Threat Model</a>
+        <a href="{{ url_for('main.index') }}" class="btn btn-primary">Dashboard &rarr;</a>
+    </div>
+</div>
+
+<!-- 1. Executive Summary -->
+<div class="section-card">
+    <div class="section-title">1. Executive Summary</div>
+    <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6;">
+        This report documents the security audit and engineering remediation performed on the six core vulnerabilities identified in the Secure Coding Assignment 1 case study. 
+        Each vulnerability was systematically evaluated, demonstrated under isolated conditions, and remediated using standard Python secure-coding practices guided by Modules 1 and 2. 
+        All fixes were validated through automated unit and integration test suites.
+    </p>
+</div>
+
+<!-- 2. Vulnerability Analysis & Risk Matrix -->
+<div class="section-card">
+    <div class="section-title">2. Vulnerability Analysis & Risk Assessment Matrix</div>
+    <p style="font-size: 0.83rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+        Risk is quantitatively and qualitatively evaluated following the standard risk equation: <code>Risk = Likelihood × Impact</code>.
+    </p>
+
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Vulnerability</th>
+                    <th>Likelihood</th>
+                    <th>Impact</th>
+                    <th>Risk Rating</th>
+                    <th>Secure Practice Applied</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>1</strong></td>
+                    <td><strong>OS Command Injection</strong></td>
+                    <td><span class="badge badge-vuln">High</span></td>
+                    <td><span class="risk-pill risk-critical">CRITICAL</span></td>
+                    <td><span class="risk-pill risk-critical">CRITICAL</span></td>
+                    <td>Structured argument vector in <code>subprocess.run(shell=False)</code> + allowlist validation.</td>
+                </tr>
+                <tr>
+                    <td><strong>2</strong></td>
+                    <td><strong>Plaintext Password Storage</strong></td>
+                    <td><span class="badge badge-vuln">High</span></td>
+                    <td><span class="risk-pill risk-critical">CRITICAL</span></td>
+                    <td><span class="risk-pill risk-critical">CRITICAL</span></td>
+                    <td>Salted password hashing via PBKDF2/scrypt + constant-time comparison.</td>
+                </tr>
+                <tr>
+                    <td><strong>3</strong></td>
+                    <td><strong>File Path Traversal</strong></td>
+                    <td><span class="badge badge-vuln">High</span></td>
+                    <td><span class="risk-pill risk-high">HIGH</span></td>
+                    <td><span class="risk-pill risk-high">HIGH</span></td>
+                    <td>Canonical path resolution (<code>Path.resolve()</code>) + base directory containment check.</td>
+                </tr>
+                <tr>
+                    <td><strong>4</strong></td>
+                    <td><strong>Unmanaged Dependencies</strong></td>
+                    <td><span class="badge badge-vuln">High</span></td>
+                    <td><span class="risk-pill risk-high">HIGH</span></td>
+                    <td><span class="risk-pill risk-high">HIGH</span></td>
+                    <td>Minimal dependency footprint, version pinning, and Software Composition Analysis (SCA).</td>
+                </tr>
+                <tr>
+                    <td><strong>5</strong></td>
+                    <td><strong>Predictable Temporary Files</strong></td>
+                    <td><span class="badge badge-sec">Medium</span></td>
+                    <td><span class="risk-pill risk-high">HIGH</span></td>
+                    <td><span class="risk-pill risk-medium">MEDIUM</span></td>
+                    <td>Cryptographic high-entropy filenames (<code>tempfile.NamedTemporaryFile</code>) + automatic cleanup.</td>
+                </tr>
+                <tr>
+                    <td><strong>6</strong></td>
+                    <td><strong>Improper Exception Handling</strong></td>
+                    <td><span class="badge badge-vuln">High</span></td>
+                    <td><span class="badge badge-sec">Low-Med</span></td>
+                    <td><span class="risk-pill risk-medium">MEDIUM</span></td>
+                    <td>Specific exception handlers (<code>FileNotFoundError</code>, etc.) + sanitized client messages.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 3. Implementation Priority Order -->
+<div class="section-card">
+    <div class="section-title">3. Implementation Priority Order & Justification</div>
+    <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+        Implementation priority is based on the combination of likelihood and potential impact. Vulnerabilities with the greatest potential to compromise confidentiality, integrity, or availability and/or enable direct remote compromise are addressed earlier.
+    </p>
+
+    <div style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.8;">
+        <p><strong style="color: #f43f5e;">Priority 1 — OS Command Injection (Risk: CRITICAL):</strong> Addressed first because raw input directly reaching a shell interpreter allows complete host takeover, remote code execution, and data destruction. Mitigated via <code>subprocess.run(shell=False)</code> and strict allowlists.</p>
+        
+        <p><strong style="color: #f43f5e;">Priority 2 — Plaintext Password Storage (Risk: CRITICAL):</strong> Addressed second because any database or backup exposure directly compromises all user accounts. Mitigated via salted PBKDF2/scrypt key derivation and constant-time verification.</p>
+        
+        <p><strong style="color: #fb923c;">Priority 3 — File Path Traversal (Risk: HIGH):</strong> Addressed third because attackers can read backend configuration, secrets, and code outside authorized document roots. Mitigated via <code>pathlib.Path.resolve()</code> and <code>is_relative_to(base)</code> boundary enforcement.</p>
+        
+        <p><strong style="color: #fb923c;">Priority 4 — Unmanaged External Dependencies (Risk: HIGH):</strong> Addressed fourth because applications inherit known CVEs from third-party supply chains. Mitigated via minimal manifests and automated SCA scanning (<code>pip-audit</code>).</p>
+        
+        <p><strong style="color: #38bdf8;">Priority 5 — Predictable Temporary Files (Risk: MEDIUM):</strong> Addressed fifth because exploitation requires local access or specific race conditions. Mitigated via <code>tempfile.NamedTemporaryFile</code> with automatic disposal.</p>
+        
+        <p><strong style="color: #38bdf8;">Priority 6 — Improper Exception Handling (Risk: MEDIUM):</strong> Addressed sixth because stack traces assist reconnaissance rather than granting immediate execution. Mitigated via typed exception handlers and sanitized user error messages.</p>
+    </div>
+</div>
+
+<!-- 4. Secure Coding Principles Applied -->
+<div class="section-card">
+    <div class="section-title">4. Core Secure Coding Principles Applied</div>
+    <ul class="bullet-list">
+        <li><strong>Least Privilege:</strong> Operations run with minimal permissions without invoking administrative shell interpreters.</li>
+        <li><strong>Defense in Depth:</strong> Dual-layer protection using server-side allowlists before calling structured APIs.</li>
+        <li><strong>Secure by Default:</strong> Safe default configurations, strict sandbox bounds, and automated security headers.</li>
+        <li><strong>Fail Securely:</strong> Runtime exceptions fail safely without exposing internal implementation details or stack traces to end users.</li>
+        <li><strong>Complete Mediation:</strong> Every file access request is canonicalized and validated on every single invocation.</li>
+        <li><strong>Minimize Attack Surface:</strong> Reduced external dependencies, isolated sandbox directories, and no unnecessary command interfaces.</li>
+        <li><strong>Secure Data Handling:</strong> Passwords hashed with high-work-factor algorithms; zero cleartext credential storage.</li>
+        <li><strong>Secure Recovery:</strong> Context managers (<code>with</code> blocks) ensure all opened resources and temp files are destroyed even upon unexpected aborts.</li>
+    </ul>
+</div>
+
+<!-- 5. Conclusion -->
+<div class="section-card">
+    <div class="section-title">5. Conclusion</div>
+    <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6;">
+        All six weaknesses from the assignment case study have been systematically mitigated through defensive engineering controls. The application provides an interactive, safe demonstration of vulnerable and secure behaviors, accompanied by full automated test verification.
+    </p>
+</div>
+{% endblock %}
