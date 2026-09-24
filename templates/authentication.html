@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}Lab 3: Password Security — SECURE CODING LAB{% endblock %}
+
+{% block content %}
+<div class="lab-header">
+    <div>
+        <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.25rem;">
+            <span class="badge badge-vuln">Vulnerability 3</span>
+            <span class="risk-pill risk-critical">CRITICAL RISK</span>
+        </div>
+        <h1 class="lab-title">Plaintext Password Storage</h1>
+        <p class="lab-desc">
+            Storing passwords in cleartext exposes credentials at rest; secure implementations use cryptographic salted key derivation (PBKDF2/scrypt).
+        </p>
+    </div>
+    <div style="display: flex; gap: 0.4rem;">
+        <a href="{{ url_for('file.file_view') }}" class="btn btn-secondary">&larr; Prev Lab</a>
+        <a href="{{ url_for('exception.exception_view') }}" class="btn btn-primary">Next Lab &rarr;</a>
+    </div>
+</div>
+
+{% if message %}
+<div class="terminal-box {% if success %}sec-out{% else %}vuln-out{% endif %}" style="margin-bottom: 1rem;">
+    <strong>[{{ 'SUCCESS' if success else 'REJECTED' }}]:</strong> {{ message }}
+</div>
+{% endif %}
+
+<!-- Interactive Demonstration Grid (Try It First) -->
+<div class="lab-grid">
+    <!-- SECTION A: TRY VULNERABLE CODE -->
+    <div class="lab-panel vulnerable">
+        <div class="panel-header">
+            <span class="panel-title" style="color: #f43f5e;">🔑 SECTION A: Try Plaintext Storage</span>
+            <span class="badge badge-vuln">Plaintext Storage</span>
+        </div>
+
+        <pre><code># INSECURE IMPLEMENTATION
+USER_DB[username] = raw_password # Plaintext!
+if USER_DB[username] == raw_password:
+    login_success()</code></pre>
+
+        <form method="POST" action="{{ url_for('auth.auth_view') }}" style="margin-bottom: 0.75rem;">
+            <input type="hidden" name="mode" value="vulnerable">
+            <div class="form-group">
+                <label class="form-label" for="vuln-user">Username:</label>
+                <input type="text" id="vuln-user" name="username" class="form-input" placeholder="alice_demo" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="vuln-pass">Password (Stored Cleartext):</label>
+                <input type="password" id="vuln-pass" name="password" class="form-input" placeholder="Password123!" required>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+                <button type="submit" name="action" value="register" class="btn btn-secondary" style="flex: 1;">Register (Plaintext)</button>
+                <button type="submit" name="action" value="login" class="btn btn-danger" style="flex: 1;">RUN VULNERABLE LOGIN</button>
+            </div>
+        </form>
+
+        <h4 style="color: #f43f5e; font-size: 0.82rem; margin-bottom: 0.35rem;">Live Plaintext DB Records (Exposed!):</h4>
+        <div class="terminal-box vuln-out" style="margin-top: 0; max-height: 140px;">
+{% for u, p in vulnerable_users.items() %}
+User: {{ u }} | Password: "{{ p }}" [EXPOSED!]
+{% endfor %}
+        </div>
+    </div>
+
+    <!-- SECTION C: SECURE THE CODE -->
+    <div class="lab-panel secure">
+        <div class="panel-header">
+            <span class="panel-title" style="color: #10b981;">🛡️ SECTION C: Secure Password Hashing</span>
+            <span class="badge badge-sec">PBKDF2-HMAC-SHA256</span>
+        </div>
+
+        <pre><code># SECURE IMPLEMENTATION
+# Salted key-derivation function (PBKDF2)
+hash_val = generate_password_hash(pwd, 'pbkdf2:sha256:600000')
+USER_DB[username] = hash_val
+
+# Constant-time verification
+if check_password_hash(USER_DB[username], pwd):
+    login_success()</code></pre>
+
+        <form method="POST" action="{{ url_for('auth.auth_view') }}" style="margin-bottom: 0.75rem;">
+            <input type="hidden" name="mode" value="secure">
+            <div class="form-group">
+                <label class="form-label" for="sec-user">Username (3-30 chars):</label>
+                <input type="text" id="sec-user" name="username" class="form-input" placeholder="carol_dev" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="sec-pass">Password (Min 8 chars, mixed case + digit):</label>
+                <input type="password" id="sec-pass" name="password" class="form-input" placeholder="SuperSecure2026!" required>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+                <button type="submit" name="action" value="register" class="btn btn-secondary" style="flex: 1;">Register (Hashed)</button>
+                <button type="submit" name="action" value="login" class="btn btn-success" style="flex: 1;">RUN SECURE LOGIN</button>
+            </div>
+        </form>
+
+        <h4 style="color: #6ee7b7; font-size: 0.82rem; margin-bottom: 0.35rem;">Live Salted Hash DB Records (Irreversible):</h4>
+        <div class="terminal-box sec-out" style="margin-top: 0; max-height: 140px;">
+{% for u, h in secure_users.items() %}
+User: {{ u }}
+Hash: {{ h }}
+{% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- SECTION B: WHAT WENT WRONG? -->
+<div class="section-card">
+    <div class="section-title">⚠️ SECTION B: What Went Wrong?</div>
+    <ul class="bullet-list">
+        <li><strong>Cleartext at Rest:</strong> Passwords were stored directly as readable strings in memory and storage.</li>
+        <li><strong>Zero Leak Protection:</strong> Any database backup leak, SQL injection, or insider inspection immediately compromises all accounts.</li>
+        <li><strong>Credential Reuse Risk:</strong> Users frequently reuse passwords across critical personal and financial services.</li>
+    </ul>
+</div>
+
+<!-- SECTION D: BEFORE vs AFTER -->
+<div class="section-card">
+    <div class="section-title">⚖️ SECTION D: Before vs After Fix</div>
+    <div class="comparison-grid">
+        <div class="comp-box vuln">
+            <div class="comp-title">❌ Vulnerable Approach</div>
+            <div class="comp-item">❌ Raw password saved directly</div>
+            <div class="comp-item">❌ Readable in logs, dumps, and UI</div>
+            <div class="comp-item">❌ Naive string equality comparison</div>
+            <div class="comp-item">❌ Total credential exposure</div>
+        </div>
+        <div class="comp-box sec">
+            <div class="comp-title">✓ Secure Implementation</div>
+            <div class="comp-item">✓ Salted PBKDF2/scrypt key derivation</div>
+            <div class="comp-item">✓ Passwords never stored or logged</div>
+            <div class="comp-item">✓ Constant-time verification</div>
+            <div class="comp-item">✓ High work factor defends offline cracking</div>
+        </div>
+    </div>
+</div>
+
+<!-- SECTION E: SECURE CODING PRINCIPLE -->
+<div class="section-card">
+    <div class="section-title">🎯 SECTION E: Secure Coding Principle</div>
+    <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+        <strong>Secure Data Handling & Defense in Depth:</strong> Sensitive credentials are protected at rest using one-way cryptographic algorithms with unique salts, ensuring passwords cannot be reconstructed even if storage is breached.
+    </p>
+    <details>
+        <summary>Why does this matter in real systems?</summary>
+        <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.4rem;">
+            Plaintext password storage is a direct violation of international compliance standards (GDPR, PCI-DSS, NIST 800-63B). Salted slow key derivation prevents dictionary and rainbow table cracking.
+        </p>
+    </details>
+</div>
+{% endblock %}
